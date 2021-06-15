@@ -33,11 +33,8 @@ public final class Aperture: NSObject {
 		self.destination = destination
 		self.session = AVCaptureSession()
 		self.output = output
-
-		// Needed because otherwise there is no audio on videos longer than 10 seconds.
-		// https://stackoverflow.com/a/26769529/64949
-		output.movieFragmentInterval = .invalid
-
+        
+        
 		if let audioDevice = audioDevice {
 			if !audioDevice.hasMediaType(.audio) {
 				throw Error.invalidAudioDevice
@@ -68,7 +65,12 @@ public final class Aperture: NSObject {
 			let videoCodec = videoCodec,
 			let connection = output.connection(with: .video)
 		{
-			output.setOutputSettings([AVVideoCodecKey: videoCodec], for: connection)
+            output.setOutputSettings([
+                AVVideoCodecKey: videoCodec,
+                AVVideoCompressionPropertiesKey : [AVVideoAverageBitRateKey : 2000000,      AVVideoMaxKeyFrameIntervalKey: 30
+                    ]
+                ],
+                for: connection)
 		} else {
 			throw Error.couldNotSetVideoCodec
 		}
